@@ -1,0 +1,8 @@
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\bin\Debug\Assign1_Threads.exe.config
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\bin\Debug\Assign1_Threads.exe
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\bin\Debug\Assign1_Threads.pdb
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\obj\Debug\Assign1_Threads.csproj.AssemblyReference.cache
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\obj\Debug\Assign1_Threads.csproj.SuggestedBindingRedirects.cache
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\obj\Debug\Assign1_Threads.csproj.CoreCompileInputs.cache
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\obj\Debug\Assign1_Threads.exe
+C:\Users\Drakozi\source\repos\CST352\CST352_Assign1\Assign1_Threads\Assign1_Threads\obj\Debug\Assign1_Threads.pdb
