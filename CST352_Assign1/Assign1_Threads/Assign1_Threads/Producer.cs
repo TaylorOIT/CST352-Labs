@@ -13,11 +13,24 @@ namespace Assign1_Threads
     {
         private SafeRing ring;
         private int nItemsToProduce;
+        private Thread thread;
 
         public Producer(SafeRing ring, int nItemsToProduce)
         {
             this.ring = ring;
             this.nItemsToProduce = nItemsToProduce;
+        }
+
+        public void Start()
+        {
+            // start a new thread
+            thread = new Thread(ThreadFunc);
+            thread.Start(???);
+        }
+
+        private static void ThreadFunc(Object param)
+        {
+
         }
     }
 }
