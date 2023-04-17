@@ -14,11 +14,17 @@ namespace Assign1_Threads
         private SafeRing ring;
         private int nItemsToProduce;
         private Thread thread;
+        private Random rand;
+        private ManualResetEvent complete;
 
-        public Producer(SafeRing ring, int nItemsToProduce)
+        public WaitHandle Complete { get { return complete; } }
+
+        public Producer(Random rand, SafeRing ring, int nItemsToProduce)
         {
             this.ring = ring;
             this.nItemsToProduce = nItemsToProduce;
+            this.rand = rand;
+            complete = new ManualResetEvent(false);
         }
 
         public void Start()
@@ -40,13 +46,20 @@ namespace Assign1_Threads
 
             for (int i =0; i < nItemsToProduce; i++)
             {
-               // produce 1 item
-               // Randomly generate the integer between 1 and 1000
-               // Inserting the number into the queue
-               // Sleeping the thread for that number of msec
+                // produce 1 item
+                
+                // Randomly generate the integer between 1 and 1000
+                int item = rand.Next(1, 1000);
+               
+                // Inserting the number into the queue
+                ring.Insert(item);
+
+                // Sleeping the thread for that number of msec
+                Thread.Sleep(item);
             }
 
             // notify complete
+            complete.Set();
         }
     }
 }
