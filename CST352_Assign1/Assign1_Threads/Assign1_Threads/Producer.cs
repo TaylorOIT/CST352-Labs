@@ -30,7 +30,12 @@ namespace Assign1_Threads
 
         private static void ThreadFunc(Object param)
         {
+            Produce();
+        }
 
+        private void Produce()
+        {
+            // do the producing
         }
     }
 }
