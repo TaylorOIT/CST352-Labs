@@ -15,5 +15,10 @@ namespace Assign1_Threads
             this.capacity = capacity;
             buffer = new int[capacity];
         }
+
+        public void Insert(int i)
+        {
+
+        }
     }
 }
