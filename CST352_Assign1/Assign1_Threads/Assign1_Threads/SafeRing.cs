@@ -9,9 +9,11 @@ namespace Assign1_Threads
     class SafeRing
     {
         private int capacity;
+        private int[] buffer;
         public SafeRing(int capacity)
         {
-
+            this.capacity = capacity;
+            buffer = new int[capacity];
         }
     }
 }
