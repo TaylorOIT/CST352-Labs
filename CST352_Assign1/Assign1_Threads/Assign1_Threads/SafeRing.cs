@@ -20,5 +20,10 @@ namespace Assign1_Threads
         {
 
         }
+
+        public int Remove()
+        {
+            return 0;
+        }
     }
 }
