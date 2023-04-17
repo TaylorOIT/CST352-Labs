@@ -25,5 +25,10 @@ namespace Assign1_Threads
         {
             return 0;
         }
+
+        public int Count()
+        {
+            return 0;
+        }
     }
 }
