@@ -25,17 +25,28 @@ namespace Assign1_Threads
         {
             // start a new thread
             thread = new Thread(ThreadFunc);
-            thread.Start(???);
+            thread.Start(this);
         }
 
         private static void ThreadFunc(Object param)
         {
-            Produce();
+            Producer p = param as Producer;
+            p.Produce();
         }
 
         private void Produce()
         {
-            // do the producing
+           // do the producing 
+
+            for (int i =0; i < nItemsToProduce; i++)
+            {
+               // produce 1 item
+               // Randomly generate the integer between 1 and 1000
+               // Inserting the number into the queue
+               // Sleeping the thread for that number of msec
+            }
+
+            // notify complete
         }
     }
 }
