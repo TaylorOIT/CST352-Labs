@@ -11,19 +11,27 @@ namespace Assign1_Threads
     {
         private int capacity;
         private int[] buffer;
+        private Mutex mutex;
+        private ManualResetEvent hasCapacity;
+        private ManualResetEvent hasItems;
         public SafeRing(int capacity)
         {
             this.capacity = capacity;
             buffer = new int[capacity];
+
+            mutex = new Mutex();
+            hasCapacity = new ManualResetEvent(true);
+            hasItems = new ManualResetEvent(false);
         }
 
         public void Insert(int i)
         {
             // wait until it's safe and until there is capacity to insert
-            wait(mutex,hasCapacity);
+            WaitHandle.WaitAll(new WaitHandle[] { mutex, hasCapacity });
 
             // iunsert the item i
             buffer[tail] = i;
+            Console.WriteLine("Inserted " + i.ToString());
 
             // increment the tail
             tail = (tail + 1) % capacity;
