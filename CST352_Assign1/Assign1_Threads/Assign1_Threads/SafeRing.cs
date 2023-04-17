@@ -40,7 +40,6 @@ namespace Assign1_Threads
 
             // release the mutex
             mutex.unlock();
-
         }
 
         public int Remove()
