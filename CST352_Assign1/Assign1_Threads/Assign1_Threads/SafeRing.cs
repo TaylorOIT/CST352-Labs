@@ -58,7 +58,18 @@ namespace Assign1_Threads
 
         public int Remove()
         {
-            return 0;
+            // wait until its safe and there is atleast one item to remove
+            WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems});
+
+            int i = buffer[head];
+            head = (head + 1) %
+            capacity;
+            size--;
+            hasCapacity.set();
+            if (size == 0)
+                hasItems.reset();
+            mutex.unlock();
+            return i;
         }
 
         public int Count()
