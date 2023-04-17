@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Assign1_Threads
 {
-    internal class SafeRing
+    class SafeRing
     {
+        private int capacity;
+        public SafeRing(int capacity)
+        {
+
+        }
     }
 }
