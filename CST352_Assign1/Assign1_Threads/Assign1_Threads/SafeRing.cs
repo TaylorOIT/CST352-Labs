@@ -46,14 +46,14 @@ namespace Assign1_Threads
             size++;
 
             // notify any objects waiting to remove that there is an item in the queue
-            hasItems.set();
+            hasItems.Set();
 
             // cause any objects wanting to insert to sleep if there is no longer capacity
             if (size == capacity)
-                hasCapacity.reset();
+                hasCapacity.Reset();
 
             // release the mutex
-            mutex.unlock();
+            mutex.ReleaseMutex();
         }
 
         public int Remove()
@@ -63,7 +63,11 @@ namespace Assign1_Threads
 
         public int Count()
         {
-            return 0;
+            mutex.WaitOne();
+            int count = size;
+            mutex.ReleaseMutex();
+
+            return count;
         }
     }
 }
