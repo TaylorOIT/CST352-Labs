@@ -11,6 +11,9 @@ namespace Assign1_Threads
     {
         private int capacity;
         private int[] buffer;
+        private int head;
+        private int tail;
+        private int size;
         private Mutex mutex;
         private ManualResetEvent hasCapacity;
         private ManualResetEvent hasItems;
@@ -18,6 +21,9 @@ namespace Assign1_Threads
         {
             this.capacity = capacity;
             buffer = new int[capacity];
+            head = 0;
+            tail = 0;
+            size = 0;
 
             mutex = new Mutex();
             hasCapacity = new ManualResetEvent(true);
