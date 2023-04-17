@@ -61,14 +61,27 @@ namespace Assign1_Threads
             // wait until its safe and there is atleast one item to remove
             WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems});
 
+            // get the item at the heaed of the queue
             int i = buffer[head];
-            head = (head + 1) %
-            capacity;
+            Console.WriteLine("Removed " + i.ToString());
+
+            // increment the head
+            head = (head + 1) % capacity;
+
+            // decrement the size
             size--;
-            hasCapacity.set();
+
+            // indicate that we have capacity
+            hasCapacity.Set();
+
+            // indicate that the queue is empty if we removed the last item
             if (size == 0)
-                hasItems.reset();
-            mutex.unlock();
+                hasItems.Reset();
+            
+            // unlock the mutex
+            mutex.ReleaseMutex();
+
+            // return the item we removed from the queue
             return i;
         }
 
