@@ -63,7 +63,7 @@ namespace Assign1_Threads
         public int Remove(int timeout = -1)
         {
             // wait until its safe and there is atleast one item to remove
-           if (!WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems}))
+           if (!WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems}, timeout))
             {
                 // timeout expired
                 throw new TimeoutException("SafeRing timed out in Remove!");

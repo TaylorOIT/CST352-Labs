@@ -13,11 +13,13 @@ namespace Assign1_Threads
         private Random rand;
         private Thread thread;
         private bool stop;
+        private int timeout;
 
-        public Consumer(Random r, SafeRing ring)
+        public Consumer(Random r, SafeRing ring, int timeout = -1)
         {
             rand = r;
             this.ring = ring;
+            this.timeout = timeout;
         }
 
         public void Start()
@@ -43,7 +45,7 @@ namespace Assign1_Threads
                     // consume one item
                     
                     // Remove an integer from the queue
-                    int item = ring.Remove();
+                    int item = ring.Remove(timeout);
                     
                     // Randomly generate a second integer between 1 and 1000
                     int item2 = rand.Next(1, 1000);

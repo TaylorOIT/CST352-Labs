@@ -16,15 +16,17 @@ namespace Assign1_Threads
         private Thread thread;
         private Random rand;
         private ManualResetEvent complete;
+        private int timeout;
 
         public WaitHandle Complete { get { return complete; } }
 
-        public Producer(Random rand, SafeRing ring, int nItemsToProduce)
+        public Producer(Random rand, SafeRing ring, int nItemsToProduce, int timeout = -1)
         {
             this.ring = ring;
             this.nItemsToProduce = nItemsToProduce;
             this.rand = rand;
             complete = new ManualResetEvent(false);
+            this.timeout = timeout;
         }
 
         public void Start()
