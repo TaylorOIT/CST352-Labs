@@ -26,9 +26,16 @@ namespace Assign1_Threads
                 Producer p = new Producer(rand, ring, NUM_ITEMS_TO_PRODUCE);
                 producers.Add(p);
                 p.Start();
-            } 
-            
+            }
+
             // create and start the consumers
+            List<Consumer> consumers = new List<Consumer>();
+            for (int i = 0; i < NUM_CONSUMERS; i++)
+            {
+                Consumer c = new Consumer(rand, ring);
+                consumers.Add(c);
+                c.Start();
+            }
 
             // wait until all producers are complete
             for (int i = 0; i < NUM_PRODUCERS; i++)
@@ -37,6 +44,10 @@ namespace Assign1_Threads
             }
 
             // stop the consumers
+            for (int i = 0; i < NUM_CONSUMERS; i++)
+            {
+                consumers[i].Stop();
+            }
         }
     }
 }
