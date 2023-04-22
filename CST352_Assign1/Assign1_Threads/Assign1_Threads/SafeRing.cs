@@ -30,10 +30,14 @@ namespace Assign1_Threads
             hasItems = new ManualResetEvent(false);
         }
 
-        public void Insert(int i)
+        public void Insert(int i, int timeout = -1)
         {
             // wait until it's safe and until there is capacity to insert
-            WaitHandle.WaitAll(new WaitHandle[] { mutex, hasCapacity });
+            if (!WaitHandle.WaitAll(new WaitHandle[] { mutex, hasCapacity }, timeout))
+            {
+                // time out expired
+                throw new TimeoutException("SafeRing timed out in Insert!");
+            }
 
             // iunsert the item i
             buffer[tail] = i;
@@ -56,10 +60,14 @@ namespace Assign1_Threads
             mutex.ReleaseMutex();
         }
 
-        public int Remove()
+        public int Remove(int timeout = -1)
         {
             // wait until its safe and there is atleast one item to remove
-            WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems});
+           if (!WaitHandle.WaitAll(new WaitHandle[] {mutex, hasItems}))
+            {
+                // timeout expired
+                throw new TimeoutException("SafeRing timed out in Remove!");
+            }
 
             // get the item at the heaed of the queue
             int i = buffer[head];
