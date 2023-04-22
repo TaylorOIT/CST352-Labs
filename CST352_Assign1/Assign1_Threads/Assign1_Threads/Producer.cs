@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.CodeDom;
 using System.Data;
+using System.Net.Http.Headers;
 
 namespace Assign1_Threads
 {
     class Producer
     {
+        private const int RETRIES = 10;
         private SafeRing ring;
         private int nItemsToProduce;
         private Thread thread;
@@ -52,9 +54,26 @@ namespace Assign1_Threads
                 
                 // Randomly generate the integer between 1 and 1000
                 int item = rand.Next(1, 1000);
-               
-                // Inserting the number into the queue
-                ring.Insert(item);
+                
+                int retries  = RETRIES;
+                while (retries > 0)
+                {
+                    try
+                    {
+                        // Inserting the number into the queue
+                        ring.Insert(item, timeout);
+                        break;
+                    } catch (Exception ex)
+                    {
+                        Console.WriteLine("Warning! Unable to insert produced item, retrying!");
+                        retries--;
+                        if (retries == 0)
+                        {
+                            Console.WriteLine("Error! Unable to insert produced item, giving up!");
+                            Thread.Sleep(1000);
+                        }
+                    }
+                }
 
                 // Sleeping the thread for that number of msec
                 Thread.Sleep(item);
