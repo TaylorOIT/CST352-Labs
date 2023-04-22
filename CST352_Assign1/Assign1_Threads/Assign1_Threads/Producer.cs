@@ -63,7 +63,7 @@ namespace Assign1_Threads
                         // Inserting the number into the queue
                         ring.Insert(item, timeout);
                         break;
-                    } catch (Exception ex)
+                    } catch (TimeoutException te)
                     {
                         Console.WriteLine("Warning! Unable to insert produced item, retrying!");
                         retries--;

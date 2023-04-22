@@ -43,17 +43,20 @@ namespace Assign1_Threads
                 try
                 {
                     // consume one item
-                    
                     // Remove an integer from the queue
                     int item = ring.Remove(timeout);
-                    
+
                     // Randomly generate a second integer between 1 and 1000
                     int item2 = rand.Next(1, 1000);
 
                     // Sleep the thread for the number of msec
                     Thread.Sleep(item2);
                 }
-                catch (Exception e)
+                catch (TimeoutException te)
+                {
+                    Console.WriteLine("Warning! Unable to remove item to consume, retrying!");
+                }
+                catch (ThreadAbortException tae)
                 {
                     // we've been told to stop
                     Console.WriteLine("Stopping...");

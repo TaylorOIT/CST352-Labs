@@ -14,6 +14,7 @@ namespace Assign1_Threads
             const int NUM_PRODUCERS = 2;
             const int NUM_ITEMS_TO_PRODUCE = 10;
             const int NUM_CONSUMERS = 2;
+            const int TIMEOUT = 10; // msec
 
             Random rand = new Random();
 
@@ -23,7 +24,7 @@ namespace Assign1_Threads
             List<Producer> producers = new List<Producer>();
             for (int i = 0; i < NUM_PRODUCERS; i++)
             {
-                Producer p = new Producer(rand, ring, NUM_ITEMS_TO_PRODUCE);
+                Producer p = new Producer(rand, ring, NUM_ITEMS_TO_PRODUCE, TIMEOUT);
                 producers.Add(p);
                 p.Start();
             }
@@ -32,7 +33,7 @@ namespace Assign1_Threads
             List<Consumer> consumers = new List<Consumer>();
             for (int i = 0; i < NUM_CONSUMERS; i++)
             {
-                Consumer c = new Consumer(rand, ring);
+                Consumer c = new Consumer(rand, ring, TIMEOUT);
                 consumers.Add(c);
                 c.Start();
             }
