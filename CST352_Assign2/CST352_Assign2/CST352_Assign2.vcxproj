@@ -128,6 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CST352_Assign2.cpp" />
+    <ClCompile Include="MemoryPool.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MemoryPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
