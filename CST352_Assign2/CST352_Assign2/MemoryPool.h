@@ -2,10 +2,24 @@
 // virtual base class for all memory pools
 
 #pragma once
+#include <vector>
+
 class MemoryPool
 {
 	protected:
+		class Chunk {
+			public :
+				unsigned int startingIndex;
+				unsigned int size;
+				bool allocated;
+				Chunk(unsigned int startingIndex, unsigned int size, bool allocated) :
+					startingIndex(startingIndex), size(size), allocated(allocated) {}
+		};
+		unsigned char* pool;
+		std::vector<Chunk> chunks;
+
 		MemoryPool(unsigned int poolSize);
+		virtual void FindAvailableChunk(unsigned int nBytes = 0);
 
 	public:
 		virtual ~MemoryPool();
