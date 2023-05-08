@@ -25,6 +25,6 @@ class MemoryPool
 		virtual ~MemoryPool();
 		virtual void* Allocate(unsigned int nBytes);
 		virtual void Free(void* block);
-		virtual void DebugPrint();
+		virtual void DebugPrint() const;
 };
 

@@ -1,5 +1,5 @@
 // FirstFitPool.h
-// memory pool using first fit allocaiton strategy
+// memory pool using first fit allocation strategy
 
 #pragma once
 #include "MemoryPool.h"

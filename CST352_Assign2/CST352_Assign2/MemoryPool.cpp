@@ -17,6 +17,6 @@ void MemoryPool::Free(void* block)
 {
 }
 
-void MemoryPool::DebugPrint()
+void MemoryPool::DebugPrint() const
 {
 }
