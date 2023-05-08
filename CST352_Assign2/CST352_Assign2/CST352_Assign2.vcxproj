@@ -128,9 +128,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CST352_Assign2.cpp" />
+    <ClCompile Include="FirstFitPool.cpp" />
     <ClCompile Include="MemoryPool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FirstFitPool.h" />
     <ClInclude Include="MemoryPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

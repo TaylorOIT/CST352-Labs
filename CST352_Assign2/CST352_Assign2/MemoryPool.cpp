@@ -4,10 +4,6 @@ MemoryPool::MemoryPool(unsigned int poolSize)
 {
 }
 
-void MemoryPool::FindAvailableChunk(unsigned int nBytes)
-{
-}
-
 MemoryPool::~MemoryPool()
 {
 }

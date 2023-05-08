@@ -19,7 +19,7 @@ class MemoryPool
 		std::vector<Chunk> chunks;
 
 		MemoryPool(unsigned int poolSize);
-		virtual void FindAvailableChunk(unsigned int nBytes = 0);
+		virtual void FindAvailableChunk(unsigned int nBytes) = 0;
 
 	public:
 		virtual ~MemoryPool();
