@@ -130,10 +130,12 @@
     <ClCompile Include="CST352_Assign2.cpp" />
     <ClCompile Include="FirstFitPool.cpp" />
     <ClCompile Include="MemoryPool.cpp" />
+    <ClCompile Include="StringQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FirstFitPool.h" />
     <ClInclude Include="MemoryPool.h" />
+    <ClInclude Include="StringQueue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
