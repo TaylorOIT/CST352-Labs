@@ -16,5 +16,4 @@ int main()
     queue.Remove();
     std::cout << queue.Peek() << std::endl;
     queue.Remove();
-    
 }

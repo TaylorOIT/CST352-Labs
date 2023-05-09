@@ -14,7 +14,6 @@ void StringQueue::Insert(const char* s)
 
 	// push onto the queue
 	theQueue.push(newString);
-	pool->DebugPrint();
 
 	pool->DebugPrint();
 }
