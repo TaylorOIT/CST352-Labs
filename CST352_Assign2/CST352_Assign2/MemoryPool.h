@@ -4,6 +4,11 @@
 #pragma once
 #include <vector>
 
+class OutofMemoryException 
+{
+	
+};
+
 class MemoryPool
 {
 	protected:
