@@ -5,6 +5,16 @@
 #include "MemoryPool.h"
 #include <queue>
 
+class FullException 
+{
+
+};
+
+class EmptyException 
+{
+
+};
+
 class StringQueue
 {
 	private:

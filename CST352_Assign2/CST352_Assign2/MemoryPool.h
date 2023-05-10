@@ -24,6 +24,8 @@ class MemoryPool
 		std::vector<Chunk> chunks;
 
 		MemoryPool(unsigned int poolSize);
+
+		// FindAvailableChunk returns an available chunk that is big enough to fit nBytes
 		virtual std::vector<Chunk>::iterator FindAvailableChunk(unsigned int nBytes) = 0;
 
 	public:

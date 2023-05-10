@@ -7,24 +7,35 @@ StringQueue::StringQueue(MemoryPool* pool) :pool(pool)
 void StringQueue::Insert(const char* s)
 {
 	// allocate memory in the pool to hold the string and its null terminator
-	char* newString = (char*)pool->Allocate(strlen(s) + 1);
+	try{
+		char* newString = (char*)pool->Allocate(strlen(s) + 1);
+		// copy the string contents
+		strcpy_s(newString, strlen(s) + 1, s);
 
-	// copy the string contents
-	strcpy_s(newString, strlen(s) + 1, s);
+		// push onto the queue
+		theQueue.push(newString);
+	}
+	catch(OutofMemoryException){
+		throw FullException();
+	}
 
-	// push onto the queue
-	theQueue.push(newString);
 
 	pool->DebugPrint();
 }
 
 const char* StringQueue::Peek() const
 {
+	if (theQueue.empty())
+		throw EmptyException();
+
 	return theQueue.front();
 }
 
 void StringQueue::Remove()
 {
+	if (theQueue.empty())
+		throw EmptyException();
+
 	// grab the string at the front of the queue
 	char* s = theQueue.front();
 
