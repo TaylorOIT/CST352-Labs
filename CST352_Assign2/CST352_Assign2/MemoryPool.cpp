@@ -35,11 +35,13 @@ void* MemoryPool::Allocate(unsigned int nBytes)
 	// split the chunk if necessary
 	if (iter->size > nBytes) {
 		// split into two chunks, one that is exactly nBytes and the other is iter->size-nBytes
-		// insert a new chunk that represents the extra available memory
-		iter = chunks.insert(iter, Chunk(iter->startingIndex+nBytes, iter->size-nBytes, false));
+		
+		// insert a new chunk that represents exactly he bytes requested, which is allocated
+		iter = chunks.insert(iter, Chunk(iter->startingIndex, nBytes, true));
 
-		// fix up the original chunk to just what we allocated
-		iter->size -= nBytes;
+		// fix up the original chunk to represent the extra available memory
+		std::next(iter)->startingIndex += nBytes;
+		std::next(iter)->size -= nBytes;
 	}
 
 	// allocate the chunk
@@ -54,14 +56,46 @@ void* MemoryPool::Allocate(unsigned int nBytes)
 
 void MemoryPool::Free(void* block)
 {
+	// find the chunk corresponding to the block to be freed
+	std::vector<Chunk>::iterator iter;
+	for (iter = chunks.begin(); iter != chunks.end() && (pool + iter->startingIndex) != block; iter++);
+	
+	// no such chunk corresponding with that block!
+	if (iter == chunks.end())
+		return;
+	
+	// mark the chunk as available
+	iter->allocated = false;
+
+	// coalesce, if possible...
+
+	// w/ previous chunk if it exists and is also available
+	if (iter != chunks.begin() && !std::prev(iter)->allocated)
+	{
+		// coalesce!
+		iter->startingIndex = std::prev(iter)->startingIndex;
+		iter->size += std::prev(iter)->size;
+		iter = chunks.erase(std::prev(iter));
+	}
+
+	// same thing with the next chunk
+	if (std::next(iter) != chunks.end() && !std::next(iter)->allocated)
+	{
+		// coalesce!
+		iter->size += std::next(iter)->size;
+		chunks.erase(std::next(iter));
+	}
 }
 
 void MemoryPool::DebugPrint() const
 {
+
+	std::cout << std::endl;
 	std::cout << "MemoryPool {" << std::endl;
 	for (auto c : chunks) {
 		std::cout << "\tindex: " << c.startingIndex << ", size: " << c.size << ", allocated: " << c.allocated
 			<< std::endl;
 	}
 	std::cout << "}" << std::endl;
+	std::cout << std::endl;
 }
