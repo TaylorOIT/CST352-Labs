@@ -127,12 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BestFitPool.cpp" />
     <ClCompile Include="CST352_Assign2.cpp" />
     <ClCompile Include="FirstFitPool.cpp" />
     <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="StringQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BestFitPool.h" />
     <ClInclude Include="FirstFitPool.h" />
     <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="StringQueue.h" />
