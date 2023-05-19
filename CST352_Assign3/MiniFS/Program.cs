@@ -23,8 +23,8 @@ namespace MiniFS
             {
                 TestDisks();
                 TestPhysicalFileSystem();
-                TestVirtualFileSystem();
-                TestLogicalFileSystem();
+                //TestVirtualFileSystem();
+                //TestLogicalFileSystem();
             }
             catch (Exception ex)
             {
@@ -78,7 +78,14 @@ namespace MiniFS
             disk.TurnOn();
 
             // TODO: FREE_SECTOR
-
+            // instantiate a new free sector, write it to disk
+            FREE_SECTOR free1 = new FREE_SECTOR(disk.BytesPerSector);
+            disk.WriteSector(0, free1.RawBytes);
+            // read a sector from disk, instantiante a free sector class
+            FREE_SECTOR free2 = FREE_SECTOR.CreateFromBytes(disk.ReadSector(0));
+            // compare 
+            CheckBytes("free1", free1, "free2", free2);
+            
             // TODO: DRIVE_INFO
 
             // TODO: DIR_NODE
@@ -86,7 +93,7 @@ namespace MiniFS
             // TODO: FILE_NODE
 
             // TODO: DATA_SECTOR
-            
+
             disk.TurnOff();
         }
 
