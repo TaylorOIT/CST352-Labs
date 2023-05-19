@@ -24,7 +24,7 @@ namespace MiniFS
             {
                 TestDisks();
                 TestPhysicalFileSystem();
-                //TestVirtualFileSystem();
+                TestVirtualFileSystem();
                 //TestLogicalFileSystem();
             }
             catch (Exception ex)
@@ -106,7 +106,7 @@ namespace MiniFS
             CheckBytes("file1", file1, "file2", file2);
 
             // DATA_SECTOR
-            FILE_NODE file3 = new FILE_NODE(251, 50, "newfile", 50);
+            FILE_NODE file3 = new FILE_NODE(disk.BytesPerSector - 5, 50, "newfile", 50);
             DATA_SECTOR data1 = new DATA_SECTOR(disk.BytesPerSector, 50, file3.RawBytes);
             disk.WriteSector(4, data1.RawBytes);
             DATA_SECTOR data2 = DATA_SECTOR.CreateFromBytes(disk.ReadSector(4));

@@ -34,7 +34,25 @@ namespace SimpleFileSystem
         {
             // wipe all sectors of disk and create minimum required DRIVE_INFO, DIR_NODE and DATA_SECTOR
 
-            // TODO: VirtualFS.Format()
+            // loop through all sectors on the disk and change them to FREE_SECTORs
+            FREE_SECTOR free = new FREE_SECTOR(disk.BytesPerSector);
+            byte[] freeBytes = free.RawBytes;
+            for (int lba = 0; lba < disk.SectorCount; lba++)
+            {
+                disk.WriteSector(lba, freeBytes);
+            }
+
+            // DRIVE_INFO
+            DRIVE_INFO di = new DRIVE_INFO(disk.BytesPerSector, ROOT_DIR_SECTOR);
+            disk.WriteSector(DRIVE_INFO_SECTOR, di.RawBytes);
+
+            // DIR_NODE for root
+            DIR_NODE dn = new DIR_NODE(disk.BytesPerSector, ROOT_DATA_SECTOR, "/", 0);
+            disk.WriteSector(ROOT_DIR_SECTOR, dn.RawBytes);
+
+            // DATA_SECTOR for root
+            DATA_SECTOR ds = new DATA_SECTOR(disk.BytesPerSector, 0, null);
+            disk.WriteSector(ROOT_DATA_SECTOR, ds.RawBytes);
         }
 
         public void Mount(DiskDriver disk, string mountPoint)
@@ -42,7 +60,18 @@ namespace SimpleFileSystem
             // read drive info from disk, load root node and connect to mountPoint
             // for the first mounted drive, expect mountPoint to be named FSConstants.PATH_SEPARATOR as the root
 
-            // TODO: VirtualFS.Mount()
+            // read disk's DRIVE INFO
+            DRIVE_INFO di = DRIVE_INFO.CreateFromBytes(disk.ReadSector(DRIVE_INFO_SECTOR));
+
+            // read the root directory's DIR_NODE
+            DIR_NODE rn = DIR_NODE.CreateFromBytes(disk.ReadSector(di.RootNodeAt));
+
+            // create the root's VirtualNode
+            VirtualDrive drive = new VirtualDrive(disk, DRIVE_INFO_SECTOR, di);
+            drives.Add(mountPoint, drive);
+
+            // create VitualDrive and add to drive directory
+            rootNode = new VirtualNode(drive, di.RootNodeAt, rn, null);
         }
 
         public void Unmount(string mountPoint)
