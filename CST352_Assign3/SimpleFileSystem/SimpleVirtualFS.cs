@@ -177,7 +177,34 @@ namespace SimpleFileSystem
 
         private void LoadChildren()
         {
-            // TODO: VirtualNode.LoadChildren()
+            // read current list of children for this directory
+            // and populate the children dictionary w/ VirtualNodes
+
+            if (children == null)
+            {
+                children = new Dictionary<string, VirtualNode>();
+
+                // read this directory's DATA_SECTOR from disk
+                DATA_SECTOR dataSector = DATA_SECTOR.CreateFromBytes(drive.Disk.ReadSector(sector.FirstDataAt));
+
+                // loop through the list of child addresses
+                byte[] childList = dataSector.DataBytes;
+                for (int index = 0; index < ChildCount*4; index += 4)
+                {
+                    // get the child's node sector addr from childList
+                    int childNodeAddr = BitConverter.ToInt32(childList, index);
+
+                    // read the child's DIR_NODE from disk
+                    NODE childNodeSector = NODE.CreateFromBytes(drive.Disk.ReadSector(childNodeAddr));
+
+                    // create the child's VirtualNode
+                    VirtualNode childNode = new VirtualNode(drive, childNodeAddr, childNodeSector, this);
+
+                    // add the child's VirtualNode to the cache
+                    children.Add(childNodeSector.Name, childNode);
+                }
+
+            }
         }
 
         private void CommitChildren()
