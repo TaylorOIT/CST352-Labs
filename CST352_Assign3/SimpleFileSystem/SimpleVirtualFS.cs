@@ -114,11 +114,30 @@ namespace SimpleFileSystem
         {
             // find count available free sectors on the disk and return their addresses
             // if there are not enough free sectors available, then throw an exception
-            // TODO: VirtualDrive.GetNextFreeSectors()
-
+            
             int[] result = new int[count];
 
-            return result;
+            // loop through all the sectors ...
+
+            int foundCount = 0;
+            for (int lba = 0; lba < disk.SectorCount; lba++)
+            {
+                //if the sector is a FREE_SECTOR...
+                if (SECTOR.GetTypeFromBytes(disk.ReadSector(lba)) == SECTOR.SectorType.FREE_SECTOR)
+                {
+
+                    // add it to the growing list
+                    result[foundCount++] = lba;
+
+                    // when we have enough, return?
+                    if (foundCount == count)
+                        return result;
+                }
+            }
+
+            // if we don't have enough, throw an exception!
+            throw new Exception("Not enough free sectors!");
+
         }
 
         public DiskDriver Disk => disk;
