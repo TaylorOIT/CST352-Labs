@@ -77,7 +77,7 @@ namespace MiniFS
             VolatileDisk disk = new VolatileDisk(1);
             disk.TurnOn();
 
-            // TODO: FREE_SECTOR
+            // FREE_SECTOR
             // instantiate a new free sector, write it to disk
             FREE_SECTOR free1 = new FREE_SECTOR(disk.BytesPerSector);
             disk.WriteSector(0, free1.RawBytes);
@@ -85,8 +85,12 @@ namespace MiniFS
             FREE_SECTOR free2 = FREE_SECTOR.CreateFromBytes(disk.ReadSector(0));
             // compare 
             CheckBytes("free1", free1, "free2", free2);
-            
-            // TODO: DRIVE_INFO
+
+            // DRIVE_INFO
+            DRIVE_INFO drive1 = new DRIVE_INFO(disk.BytesPerSector, 42);
+            disk.WriteSector(1, drive1.RawBytes);
+            DRIVE_INFO drive2 = DRIVE_INFO.CreateFromBytes(disk.ReadSector(0));
+            CheckBytes("drive1", drive1, "drive2", drive2);
 
             // TODO: DIR_NODE
 
