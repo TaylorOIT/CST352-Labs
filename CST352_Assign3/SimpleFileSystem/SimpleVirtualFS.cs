@@ -78,7 +78,18 @@ namespace SimpleFileSystem
         {
             // look up the drive and remove it's mountPoint
 
-            // TODO: VirtualFS.Unmount()
+            // find the VirtualDrive by mountPoint
+            if (!drives.ContainsKey(mountPoint)) 
+                throw new Exception("Drive does not exits at mount point!");
+
+            VirtualDrive drive = drives[mountPoint];
+
+            // remove the drive's root from the virtual FS's tree
+            drives.Remove(mountPoint);
+
+            // if this is the virtula FS's root node's drive, null the rootNode
+            if (rootNode.Drive == drive)
+                rootNode = null;
         }
 
         public VirtualNode RootNode => rootNode;
@@ -102,6 +113,7 @@ namespace SimpleFileSystem
         public int[] GetNextFreeSectors(int count)
         {
             // find count available free sectors on the disk and return their addresses
+            // if there are not enough free sectors available, then throw an exception
             // TODO: VirtualDrive.GetNextFreeSectors()
 
             int[] result = new int[count];
@@ -175,8 +187,34 @@ namespace SimpleFileSystem
 
         public VirtualNode CreateDirectoryNode(string name)
         {
-            // TODO: VirtualNode.CreateDirectoryNode()
-            return null;
+            // load the children cahe from disk
+            LoadChildren();
+
+            // create the virtual node for this new directory
+            // find 2 free sectors on the disk (1 DIR_NODE and 1  DATA_SECTOR)
+            int[] freeSectorAddrs = drive.GetNextFreeSectors(2);
+            int dirNodeAddr = freeSectorAddrs[0];
+            int dataSectorAddr = freeSectorAddrs[1];
+
+            // create the save DIR_NODE 
+            DIR_NODE dirNode = new DIR_NODE(drive.Disk.BytesPerSector, dataSectorAddr, name, 0);
+            drive.Disk.WriteSector(dirNodeAddr, dirNode.RawBytes);
+
+            // create the save DATA_SECTOR
+            DATA_SECTOR dataSector = new DATA_SECTOR(drive.Disk.BytesPerSector, 0, null);
+            drive.Disk.WriteSector(dataSectorAddr, dataSector.RawBytes);
+
+            // create virutal node
+            VirtualNode node = new VirtualNode(drive, dirNodeAddr, dirNode, this);
+
+            // add it to the list of children
+            children.Add(name, node);
+
+            // commit the children cache from disk
+            CommitChildren();
+
+            // return the new virtual node for this directory
+            return node;
         }
 
         public VirtualNode CreateFileNode(string name)
