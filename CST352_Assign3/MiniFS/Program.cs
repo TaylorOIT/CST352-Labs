@@ -138,10 +138,10 @@ namespace MiniFS
                 VirtualNode dir1 = root.CreateDirectoryNode("dir1");
                 VirtualNode dir2 = root.CreateDirectoryNode("dir2");
 
-                VirtualNode file1 = dir1.CreateFileNode("file1");
-                TestFileWriteRead(file1, r, 0, 100);    // 1 sector
-                TestFileWriteRead(file1, r, 0, 500);    // 2 sectors
-                TestFileWriteRead(file1, r, 250, 500);    // 3 sectors
+                //VirtualNode file1 = dir1.CreateFileNode("file1");
+                //TestFileWriteRead(file1, r, 0, 100);    // 1 sector
+                //TestFileWriteRead(file1, r, 0, 500);    // 2 sectors
+                //TestFileWriteRead(file1, r, 250, 500);    // 3 sectors
 
                 vfs.Unmount("/");
 

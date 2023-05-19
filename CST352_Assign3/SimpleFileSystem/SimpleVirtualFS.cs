@@ -228,7 +228,33 @@ namespace SimpleFileSystem
 
         private void CommitChildren()
         {
-            // TODO: VirtualNode.CommitChildren()
+            // write out the list of children for this directory to disk
+
+            if (children != null)
+            {
+                // read the current DATA_SECTOR for this dir from disk
+                DATA_SECTOR dataSector = DATA_SECTOR.CreateFromBytes(drive.Disk.ReadSector(sector.FirstDataAt));
+
+                // create a byte array that contains the addresses of this dir's children
+                byte[] childList = dataSector.DataBytes;
+                int childIndex = 0;
+                foreach(VirtualNode childNode in children.Values)
+                {
+                    // add child's NODE address to the list
+                    int childAddr = childNode.nodeSector;
+                    BitConverter.GetBytes(childAddr).CopyTo(childList, childIndex);
+                    childIndex += 4; // 4-byte integer addresses
+
+                }
+
+                // update and write the byte array to dir's DATA_SECTOR
+                dataSector.DataBytes = childList;
+                drive.Disk.WriteSector(sector.FirstDataAt, dataSector.RawBytes);
+
+                // write the DIR_NODE with the correct entry count back to disk
+                (sector as DIR_NODE).EntryCount = children.Count;
+                drive.Disk.WriteSector(nodeSector, sector.RawBytes);
+            }
         }
 
         public VirtualNode CreateDirectoryNode(string name)
@@ -271,8 +297,8 @@ namespace SimpleFileSystem
 
         public IEnumerable<VirtualNode> GetChildren()
         {
-            // TODO: VirtualNode.GetChildren()
-            return null;
+            LoadChildren();
+            return children.Values;
         }
 
         public VirtualNode GetChild(string name)
