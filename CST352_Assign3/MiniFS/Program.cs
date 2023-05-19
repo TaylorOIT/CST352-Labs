@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using SimpleFileSystem;
 
@@ -89,14 +90,27 @@ namespace MiniFS
             // DRIVE_INFO
             DRIVE_INFO drive1 = new DRIVE_INFO(disk.BytesPerSector, 42);
             disk.WriteSector(1, drive1.RawBytes);
-            DRIVE_INFO drive2 = DRIVE_INFO.CreateFromBytes(disk.ReadSector(0));
+            DRIVE_INFO drive2 = DRIVE_INFO.CreateFromBytes(disk.ReadSector(1));
             CheckBytes("drive1", drive1, "drive2", drive2);
 
-            // TODO: DIR_NODE
+            // DIR_NODE
+            DIR_NODE dir1 = new DIR_NODE(disk.BytesPerSector, 101, "mydir", 5);
+            disk.WriteSector(2, dir1.RawBytes);
+            DIR_NODE dir2 = DIR_NODE.CreateFromBytes(disk.ReadSector(2));
+            CheckBytes("dir1", dir1, "dir2", dir2);
 
-            // TODO: FILE_NODE
+            // FILE_NODE
+            FILE_NODE file1 = new FILE_NODE(disk.BytesPerSector, 75, "myfile", 50);
+            disk.WriteSector(3, file1.RawBytes);
+            FILE_NODE file2 = FILE_NODE.CreateFromBytes(disk.ReadSector(3));
+            CheckBytes("file1", file1, "file2", file2);
 
-            // TODO: DATA_SECTOR
+            // DATA_SECTOR
+            FILE_NODE file3 = new FILE_NODE(251, 50, "newfile", 50);
+            DATA_SECTOR data1 = new DATA_SECTOR(disk.BytesPerSector, 50, file3.RawBytes);
+            disk.WriteSector(4, data1.RawBytes);
+            DATA_SECTOR data2 = DATA_SECTOR.CreateFromBytes(disk.ReadSector(4));
+            CheckBytes("data1", data1, "data2", data2);
 
             disk.TurnOff();
         }
