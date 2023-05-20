@@ -317,12 +317,42 @@ namespace SimpleFileSystem
 
         private void LoadBlocks()
         {
-            // TODO: VirtualNode.LoadBlocks()
+            // read the file's DATA_SECTORs from disk
+            // and create the in-memory cache of VirtualBlocks
+            if (blocks == null)
+            {
+                // create the cache
+                blocks = new List<VirtualBlock>();
+
+                // get the first DATA_SECTOR address for this file
+                int nextDataSectoraddr = sector.FirstDataAt;
+
+                // while there are more DATA_SECTORS....
+                while (nextDataSectoraddr != 0)
+                {
+                    // read the DATA_SECTOR from disk
+                    DATA_SECTOR dataSector = DATA_SECTOR.CreateFromBytes(drive.Disk.ReadSector(nextDataSectoraddr));
+                    
+                    // create a VirtualBlock for it
+                    VirtualBlock vb = new VirtualBlock(drive, nextDataSectoraddr, dataSector);
+
+                    // add it to the cache
+                    blocks.Add(vb);
+
+                    // find the next DATA_SECTOR address
+                    nextDataSectoraddr += dataSector.NextSectorAt;
+                }
+
+            }
         }
 
         private void CommitBlocks()
         {
-            // TODO: VirtualNode.CommitBlocks()
+            // write each in-memory VirtualBlock back to it's DATA_SECTOR on disk
+            if (blocks != null)
+            {
+
+            }
         }
 
         public byte[] Read(int index, int length)
@@ -333,7 +363,15 @@ namespace SimpleFileSystem
 
         public void Write(int index, byte[] data)
         {
-            // TODO: VirtualNode.Write()
+            // make sure the cache is up to date 
+            LoadBlocks();
+
+            // write the dat into the cahe of VirtualBlocks, starting at index
+            VirtualBlock.WriteBlockData(drive, blocks, index, data);
+
+
+            // commit the cache back to disk
+            CommitBlocks();
         }
     }
 
@@ -379,7 +417,7 @@ namespace SimpleFileSystem
 
         public static void WriteBlockData(VirtualDrive drive, List<VirtualBlock> blocks, int startIndex, byte[] data)
         {
-            // TODO: VirtualBlock.WriteBlockData()
+            // overwrite any blocks necessary in the list
         }
 
         public static void ExtendBlocks(VirtualDrive drive, List<VirtualBlock> blocks, int initialFileLength, int finalFileLength)
