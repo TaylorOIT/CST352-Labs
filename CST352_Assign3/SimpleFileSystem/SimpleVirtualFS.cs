@@ -259,25 +259,38 @@ namespace SimpleFileSystem
 
         public VirtualNode CreateDirectoryNode(string name)
         {
+            return CreateChildNode<DIR_NODE>(name);
+        }
+
+        public VirtualNode CreateFileNode(string name)
+        {
+            return CreateChildNode<FILE_NODE>(name);
+        }
+
+        private VirtualNode CreateChildNode<ChildSectorType>(string name) where ChildSectorType:NODE
+        {
             // load the children cahe from disk
             LoadChildren();
 
-            // create the virtual node for this new directory
-            // find 2 free sectors on the disk (1 DIR_NODE and 1  DATA_SECTOR)
+            // create the virtual node by...
+
+            // find 2 free sectors on the disk (1 NODE and 1  DATA_SECTOR)
             int[] freeSectorAddrs = drive.GetNextFreeSectors(2);
-            int dirNodeAddr = freeSectorAddrs[0];
+            int nodeSectorAddr = freeSectorAddrs[0];
             int dataSectorAddr = freeSectorAddrs[1];
 
-            // create the save DIR_NODE 
-            DIR_NODE dirNode = new DIR_NODE(drive.Disk.BytesPerSector, dataSectorAddr, name, 0);
-            drive.Disk.WriteSector(dirNodeAddr, dirNode.RawBytes);
+            // create the save child NODE 
+            ChildSectorType childNode = (ChildSectorType)Activator.CreateInstance(typeof(ChildSectorType),
+                drive.Disk.BytesPerSector, dataSectorAddr, name, 0);
+
+            drive.Disk.WriteSector(nodeSectorAddr, childNode.RawBytes);
 
             // create the save DATA_SECTOR
             DATA_SECTOR dataSector = new DATA_SECTOR(drive.Disk.BytesPerSector, 0, null);
             drive.Disk.WriteSector(dataSectorAddr, dataSector.RawBytes);
 
             // create virutal node
-            VirtualNode node = new VirtualNode(drive, dirNodeAddr, dirNode, this);
+            VirtualNode node = new VirtualNode(drive, nodeSectorAddr, childNode, this);
 
             // add it to the list of children
             children.Add(name, node);
@@ -285,14 +298,8 @@ namespace SimpleFileSystem
             // commit the children cache from disk
             CommitChildren();
 
-            // return the new virtual node for this directory
+            // return the new virtual node
             return node;
-        }
-
-        public VirtualNode CreateFileNode(string name)
-        {
-            // TODO: VirtualNode.CreateFileNode()
-            return null;
         }
 
         public IEnumerable<VirtualNode> GetChildren()
