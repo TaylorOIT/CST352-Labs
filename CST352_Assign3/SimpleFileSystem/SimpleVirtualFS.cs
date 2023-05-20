@@ -340,7 +340,7 @@ namespace SimpleFileSystem
                     blocks.Add(vb);
 
                     // find the next DATA_SECTOR address
-                    nextDataSectoraddr += dataSector.NextSectorAt;
+                    nextDataSectoraddr = dataSector.NextSectorAt;
                 }
 
             }
@@ -351,14 +351,28 @@ namespace SimpleFileSystem
             // write each in-memory VirtualBlock back to it's DATA_SECTOR on disk
             if (blocks != null)
             {
-
+                foreach(VirtualBlock vb in blocks)
+                {
+                    vb.CommitBlock();
+                }
             }
         }
 
         public byte[] Read(int index, int length)
         {
-            // TODO: VirtualNode.Read()
-            return null;
+            // validate that index+length is within the current file size
+            if (index+length > FileLength)
+            {
+                throw new Exception("Can't read beyond end of file!");
+            }
+
+            // make sure the cache is up to date 
+            LoadBlocks();
+
+            // write the data from the cache of VirtualBlocks, starting at index
+            byte[] data = VirtualBlock.ReadBlockData(drive, blocks, index, length);
+            
+            return data;
         }
 
         public void Write(int index, byte[] data)
@@ -366,9 +380,16 @@ namespace SimpleFileSystem
             // make sure the cache is up to date 
             LoadBlocks();
 
-            // write the dat into the cahe of VirtualBlocks, starting at index
+            // write the data into the cache of VirtualBlocks, starting at index
             VirtualBlock.WriteBlockData(drive, blocks, index, data);
 
+
+            // update file length in memory and on disk, if it grew
+            if (index + data.Length > FileLength)
+            {
+                (sector as FILE_NODE).FileSize = index + data.Length;
+                drive.Disk.WriteSector(nodeSector, sector.RawBytes);
+            }
 
             // commit the cache back to disk
             CommitBlocks();
@@ -406,18 +427,54 @@ namespace SimpleFileSystem
 
         public void CommitBlock()
         {
-            // TODO: VirtualBlock.CommitBlock()
+            // write the block's DATA_SECTOR back to disk, if necessary (if dirty)
+            if (dirty)
+            {
+                drive.Disk.WriteSector(sectorAddress, sector.RawBytes);
+                dirty = false;
+            }
+
         }
 
         public static byte[] ReadBlockData(VirtualDrive drive, List<VirtualBlock> blocks, int startIndex, int length)
         {
-            // TODO: VirtualBlock.ReadBlockData()
-            return null;
+            // copy out data from the list
+
+            byte[] data = new byte[length];
+
+            int toStart = 0;
+            int copyCount = data.Length;
+
+            // which block do we start with in the list?
+            int blockIndex = startIndex / drive.BytesPerDataSector;
+
+            // where in the first block do we start reading?
+            int fromIndex = startIndex % drive.BytesPerDataSector;
+
+            // copy from the block to the data array
+            CopyBytes(copyCount, blocks[blockIndex].Data, fromIndex, data, toStart);
+
+            return data;
         }
 
         public static void WriteBlockData(VirtualDrive drive, List<VirtualBlock> blocks, int startIndex, byte[] data)
         {
             // overwrite any blocks necessary in the list
+
+            int fromIndex = 0;
+            int copyCount = data.Length;
+
+            // which block do we start with in the list?
+            int blockIndex = startIndex / drive.BytesPerDataSector;
+
+            // where in the first block do we start writing
+            int toStart = startIndex % drive.BytesPerDataSector;
+
+            // copy data bytes to the block, starting at that location
+            byte[] blockBytes = blocks[blockIndex].Data;
+            CopyBytes(copyCount, data, fromIndex, blockBytes, toStart);
+            blocks[blockIndex].Data = blockBytes;
+
         }
 
         public static void ExtendBlocks(VirtualDrive drive, List<VirtualBlock> blocks, int initialFileLength, int finalFileLength)
