@@ -380,14 +380,18 @@ namespace SimpleFileSystem
             // make sure the cache is up to date 
             LoadBlocks();
 
+            /// extend the file's block/DATA_SECTORS if necessary
+            int newFileLength = Math.Max(index + data.Length, FileLength);
+            VirtualBlock.ExtendBlocks(drive, blocks, FileLength, newFileLength);
+
             // write the data into the cache of VirtualBlocks, starting at index
             VirtualBlock.WriteBlockData(drive, blocks, index, data);
 
 
             // update file length in memory and on disk, if it grew
-            if (index + data.Length > FileLength)
+            if (newFileLength > FileLength)
             {
-                (sector as FILE_NODE).FileSize = index + data.Length;
+                (sector as FILE_NODE).FileSize = newFileLength;
                 drive.Disk.WriteSector(nodeSector, sector.RawBytes);
             }
 
@@ -442,8 +446,11 @@ namespace SimpleFileSystem
 
             byte[] data = new byte[length];
 
+
+            // copy from the first block
+
             int toStart = 0;
-            int copyCount = data.Length;
+            int totalBytestoCopy = data.Length;
 
             // which block do we start with in the list?
             int blockIndex = startIndex / drive.BytesPerDataSector;
@@ -451,8 +458,36 @@ namespace SimpleFileSystem
             // where in the first block do we start reading?
             int fromIndex = startIndex % drive.BytesPerDataSector;
 
+            // how much data should we copy from the first block?
+            int copyCount = Math.Min(totalBytestoCopy, drive.BytesPerDataSector - fromIndex);
+
             // copy from the block to the data array
             CopyBytes(copyCount, blocks[blockIndex].Data, fromIndex, data, toStart);
+
+            // move on...
+            toStart += copyCount;
+            totalBytestoCopy -= copyCount;
+
+            // copy remianing blocks
+
+            while(totalBytestoCopy > 0)
+            {
+                // which block?
+                blockIndex++;
+
+                // where in the first block do we start reading?
+                fromIndex = 0;
+
+                // how much data should we copy from the first block?
+                copyCount = Math.Min(totalBytestoCopy, drive.BytesPerDataSector - fromIndex);
+
+                // copy from the block to the data array
+                CopyBytes(copyCount, blocks[blockIndex].Data, fromIndex, data, toStart);
+
+                // move on...
+                toStart += copyCount;
+                totalBytestoCopy -= copyCount;
+            }
 
             return data;
         }
@@ -461,8 +496,10 @@ namespace SimpleFileSystem
         {
             // overwrite any blocks necessary in the list
 
+            // copy into the first block
+
             int fromIndex = 0;
-            int copyCount = data.Length;
+            int totalBytestoCopy = data.Length;
 
             // which block do we start with in the list?
             int blockIndex = startIndex / drive.BytesPerDataSector;
@@ -470,16 +507,68 @@ namespace SimpleFileSystem
             // where in the first block do we start writing
             int toStart = startIndex % drive.BytesPerDataSector;
 
+            // how much data should we copy into the first block?
+            int copyCount = Math.Min(totalBytestoCopy, drive.BytesPerDataSector - toStart);
+
             // copy data bytes to the block, starting at that location
             byte[] blockBytes = blocks[blockIndex].Data;
             CopyBytes(copyCount, data, fromIndex, blockBytes, toStart);
             blocks[blockIndex].Data = blockBytes;
 
+            // move on..
+            fromIndex += copyCount;
+            totalBytestoCopy -= copyCount;
+
+            // copy remianing blocks
+
+            while (totalBytestoCopy > 0)
+            {
+                // which block?
+                blockIndex++;
+
+                // where in the first block do we start writing
+                toStart = 0;
+
+                // how much data should we copy into the first block?
+                copyCount = Math.Min(totalBytestoCopy, drive.BytesPerDataSector - toStart);
+
+                // copy data bytes to the block, starting at that location
+                blockBytes = blocks[blockIndex].Data;
+                CopyBytes(copyCount, data, fromIndex, blockBytes, toStart);
+                blocks[blockIndex].Data = blockBytes;
+
+                // move on..
+                fromIndex += copyCount;
+                totalBytestoCopy -= copyCount;
+            }
         }
 
         public static void ExtendBlocks(VirtualDrive drive, List<VirtualBlock> blocks, int initialFileLength, int finalFileLength)
         {
-            // TODO: VirtualBlock.ExtendBlocks()
+            // if necessary...
+            // allocate additional DATA_SECTORS on disk and extend the list of virtual blocks
+            int initialBlockCount = blocks.Count;
+            int finalBlockCount = BlocksNeeded(drive, finalFileLength);
+            if(finalBlockCount > initialBlockCount)
+            {
+                // allocate new blocks....
+                int[] newDataSectorAddresses = drive.GetNextFreeSectors(finalBlockCount - initialBlockCount);
+                for (int i = initialBlockCount; i < finalBlockCount; i++)
+                {
+                    // allocate DATA_SECTOR
+                    int newDataSectorAddr = newDataSectorAddresses[i - initialBlockCount];
+                    DATA_SECTOR newDataSector = new DATA_SECTOR(drive.Disk.BytesPerSector, 0, null);
+                    drive.Disk.WriteSector(newDataSectorAddr, newDataSector.RawBytes);
+
+                    // connect new DATA_SDECTOR to privous DATA_SECTOR in the list
+                    blocks[i - 1].Sector.NextSectorAt = newDataSectorAddr;
+                    blocks[i - 1].dirty = true;
+
+                    // create a new virtual block and add it to the list
+                    blocks.Add(new VirtualBlock(drive, newDataSectorAddr, newDataSector, true));
+                }
+            }
+
         }
 
         private static int BlocksNeeded(VirtualDrive drive, int numBytes)
