@@ -310,8 +310,9 @@ namespace SimpleFileSystem
 
         public VirtualNode GetChild(string name)
         {
-            // TODO: VirtualNode.GetChild()
-
+            LoadChildren();
+            if (children.ContainsKey(name))
+                return children[name];
             return null;
         }
 

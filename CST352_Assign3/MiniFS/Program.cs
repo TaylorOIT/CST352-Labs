@@ -25,7 +25,7 @@ namespace MiniFS
                 TestDisks();
                 TestPhysicalFileSystem();
                 TestVirtualFileSystem();
-                //TestLogicalFileSystem();
+                TestLogicalFileSystem();
             }
             catch (Exception ex)
             {
@@ -190,8 +190,8 @@ namespace MiniFS
 
         static void TestLogicalFileSystem()
         {
-            //DiskDriver disk = new VolatileDisk(1);
-            DiskDriver disk = new PersistentDisk(1, "disk1");
+            DiskDriver disk = new VolatileDisk(1);
+            //DiskDriver disk = new PersistentDisk(1, "disk1");
             disk.TurnOn();
 
             FileSystem fs = new SimpleFS();
@@ -221,29 +221,29 @@ namespace MiniFS
             RecursivelyPrintDirectories(root);
             Console.WriteLine();
 
-            Console.WriteLine("Moving file2 to dir1...");
-            file2.Move(dir1);
+            //Console.WriteLine("Moving file2 to dir1...");
+            //file2.Move(dir1);
 
-            Console.WriteLine("Printing all directories...");
-            RecursivelyPrintDirectories(root);
-            Console.WriteLine();
+            //Console.WriteLine("Printing all directories...");
+            //RecursivelyPrintDirectories(root);
+            //Console.WriteLine();
 
-            Console.WriteLine("Renaming dir2 to renamed...");
-            dir2.Rename("renamed");
+            //Console.WriteLine("Renaming dir2 to renamed...");
+            //dir2.Rename("renamed");
 
-            Console.WriteLine("Printing all directories...");
-            RecursivelyPrintDirectories(root);
-            Console.WriteLine();
+            //Console.WriteLine("Printing all directories...");
+            //RecursivelyPrintDirectories(root);
+            //Console.WriteLine();
 
-            Console.WriteLine("Deleting renamed...");
-            dir2.Delete();
+            //Console.WriteLine("Deleting renamed...");
+            //dir2.Delete();
 
-            Console.WriteLine("Printing all directories...");
-            RecursivelyPrintDirectories(root);
-            Console.WriteLine();
+            //Console.WriteLine("Printing all directories...");
+            //RecursivelyPrintDirectories(root);
+            //Console.WriteLine();
 
-            Console.WriteLine("Deleting dir1...");
-            dir1.Delete();
+            //Console.WriteLine("Deleting dir1...");
+            //dir1.Delete();
 
             Console.WriteLine("Printing all directories...");
             RecursivelyPrintDirectories(root);

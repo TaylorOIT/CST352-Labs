@@ -34,32 +34,62 @@ namespace SimpleFileSystem
 
         public void Mount(DiskDriver disk, string mountPoint)
         {
-            // TODO: SimpleFS.Mount()
+            virtualFileSystem.Mount(disk, mountPoint);
         }
 
         public void Unmount(string mountPoint)
         {
-            // TODO: SimpleFS.Unmount()
+            virtualFileSystem.Unmount(mountPoint);
         }
 
         public void Format(DiskDriver disk)
         {
-            // TODO: SimpleFS.Fromat()
+            virtualFileSystem.Format(disk);
         }
 
         public Directory GetRootDirectory()
         {
-            // TODO: SimpleFS.GetRootDirectory()
-            return null;
+            return new SimpleDirectory(virtualFileSystem.RootNode);
         }
 
         public FSEntry Find(string path)
         {
+            // find either dir/file based on path name
+            // return null if not found
             // good:  /foo/bar, /foo/bar/
             // bad:  foo, foo/bar, //foo/bar, /foo//bar, /foo/../foo/bar
 
-            // TODO: SimpleFS.Find()
-            return null;
+            // verify the patyh is non-empty
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new Exception("Expected as non-null path!");
+            }
+
+            // verify there is a leading '/'
+            if (path.First() != PATH_SEPARATOR)
+            {
+                throw new Exception("Expected a full path, starting with '/'");
+            }
+
+            // split the path around the path seperator
+            string[] parts = path.Split(PATH_SEPARATOR);
+
+            // start at the root
+            VirtualNode currentNode = virtualFileSystem.RootNode;
+
+            // for each part...
+            foreach(string part in parts.Skip(1)) 
+            { 
+                // find the currentNode's child named part
+                currentNode = currentNode.GetChild(part);
+                if (currentNode == null)
+                    return null;
+            }
+
+            // wrap the node and return it
+            if(currentNode.IsDirectory)
+                return new SimpleDirectory(currentNode);
+            return new SimpleFile(currentNode);
         }
 
         public char PathSeparator { get { return PATH_SEPARATOR; } }
@@ -89,8 +119,25 @@ namespace SimpleFileSystem
             {
                 get
                 {
-                    // TODO: SimpleEntry.FullPathName.get
-                    return null;
+                    // return full name of this entry (file or directory) from / down
+                    // e.g. /foo/bar/file1
+
+                    // iterate up the tree using Parent getter until we reach the root
+                    // accumulate the full path name as we visit each parent
+
+                    string fullpath = Name;
+                    Directory p = Parent;
+                    while (p != null)
+                    {
+                        // build the path
+                        fullpath = (p.Name == SimpleFS.PATH_SEPARATOR.ToString()) ? 
+                            p.Name + fullpath : p.Name + SimpleFS.PATH_SEPARATOR + fullpath;
+
+                        // continue up
+                        p = p.Parent;
+                    }
+
+                    return fullpath;
                 }
             }
 
@@ -126,26 +173,30 @@ namespace SimpleFileSystem
 
             public IEnumerable<Directory> GetSubDirectories()
             {
-                // TODO: SimpleDirectory.GetSubDirectories()
-                return null;
+                // return a collection of children that are directories 
+                foreach(VirtualNode vn in node.GetChildren().Where(x => x.IsDirectory))
+                {
+                    yield return new SimpleDirectory(vn);
+                }
             }
 
             public IEnumerable<File> GetFiles()
             {
-                // TODO: SimpleDirectory.GetFiles()
-                return null;
+                // return a collection of children that are files
+                foreach (VirtualNode vn in node.GetChildren().Where(x => x.IsFile))
+                {
+                    yield return new SimpleFile(vn);
+                }
             }
 
             public Directory CreateDirectory(string name)
             {
-                // TODO: SimpleDirectory.CreateDirectory()
-                return null;
+                return new SimpleDirectory(node.CreateDirectoryNode(name));
             }
 
             public File CreateFile(string name)
             {
-                // TODO: SimpleDirectory.CreateFile()
-                return null;
+                return new SimpleFile(node.CreateFileNode(name));
             }
         }
 
@@ -163,8 +214,8 @@ namespace SimpleFileSystem
 
             public FileStream Open()
             {
-                // TODO: SimpleFile.Open()
-                return null;
+                // create and return a SimpleStream for this file
+                return new SimpleStream(node);
             }
 
         }
@@ -184,18 +235,22 @@ namespace SimpleFileSystem
 
             public void Close()
             {
-                // TODO: SimpleStream.Close()
+                // remove access to the file node
+                node = null;
             }
 
             public byte[] Read(int index, int length)
             {
-                // TODO: SimpleStream.Read()
-                return null;
+                if (node == null)
+                    throw new Exception("Cannot read, stream closed!");
+                return node.Read(index, length);
             }
 
             public void Write(int index, byte[] data)
             {
-                // TODO: SimpleStream.Write()
+                if (node == null)
+                    throw new Exception("Cannot write, stream closed!");
+                node.Write(index, data);
             }
         }
 
