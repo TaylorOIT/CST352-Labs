@@ -28,12 +28,15 @@ namespace SimpleShell
 
         public void Connect()
         {
-            // TODO
+            driver.Connect();
         }
 
         public void Disconnect()
         {
-            // TODO
+            driver.Disconnect();
+            
+            // reset the completed line queue.
+            completedLineQueue = new LineQueue();
         }
 
         public bool Echo { get { return handler.Echo; } set { handler.Echo = value; } }
