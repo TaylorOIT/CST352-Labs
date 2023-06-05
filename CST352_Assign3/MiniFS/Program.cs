@@ -221,6 +221,8 @@ namespace MiniFS
             RecursivelyPrintDirectories(root);
             Console.WriteLine();
 
+
+            // Extra credit
             //Console.WriteLine("Moving file2 to dir1...");
             //file2.Move(dir1);
 
