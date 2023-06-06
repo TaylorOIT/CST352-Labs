@@ -19,6 +19,9 @@ namespace SimpleShell
 
         public Terminal(TerminalDriver driver)
         {
+            if (driver == null)
+                throw new Exception("Null terminal driver disallowed!");
+
             completedLineQueue = new LineQueue();
             handler = new Handler(driver, completedLineQueue);
 
@@ -44,18 +47,23 @@ namespace SimpleShell
         public string ReadLine()
         {
             // NOTE: blocks until a line of text is available
-            // TODO
-            return null;
+            return completedLineQueue.Remove();
         }
 
         public void Write(string line)
         {
-            // TODO
+            // send each character to the terminal through the driver
+            foreach(char c in line)
+            {
+                driver.SendChar(c);
+            }
         }
 
         public void WriteLine(string line)
         {
-            // TODO
+            // add a new line at the end of the string
+            Write(line);
+            driver.SendNewLine();
         }
 
         private class LineQueue
@@ -73,28 +81,45 @@ namespace SimpleShell
 
             public void Insert(string s)
             {
-                // wait until both there is capacity and we have the mutex
+                // wait until we have the mutex
+                mutex.WaitOne();
+
                 // insert into the buffer
+                theQueue.Enqueue(s);
+
                 // signal any threads waiting to remove an object
-                // TODO
+                hasItemsEvent.Set();
+
+                mutex.ReleaseMutex();
             }
 
             public string Remove()
             {
                 // wait until there is at least one object in the queue and we have the mutex
-                // remove the item from the buffer
-                // block any threads waiting to remove, if the queue is empty
-                // TODO
+                WaitHandle.WaitAll(new WaitHandle[] { mutex, hasItemsEvent });
 
-                return null;
+                // remove the item from the buffer
+                string s = theQueue.Dequeue();
+
+                // block any threads waiting to remove, if the queue is empty
+                if (theQueue.Count == 0)
+                {
+                    hasItemsEvent.Reset();
+                }
+                
+                mutex.ReleaseMutex();
+
+                return s;
             }
 
             public int Count()
             {
                 // wait until we have the mutex
                 // return the number of items in the queue
-                // TODO
-                return 0;
+                mutex.WaitOne();
+                int c = theQueue.Count;
+                mutex.ReleaseMutex();
+                return c;
             }
         }
 
@@ -119,12 +144,22 @@ namespace SimpleShell
                 {
                     case TerminalInterrupt.CHAR:
                         // queue up the characters until we have a completed line
-                        // TODO
+                        char c = driver.RecvChar();
+                        if(Echo)
+                        {
+                            driver.SendChar(c);
+                        }
+                        partialLineQueue.Add(c);
                         break;
 
                     case TerminalInterrupt.ENTER:
                         // get all the characters from the partial line queue and create a completed line
-                        // TODO
+                        completedLineQueue.Insert(new string (partialLineQueue.ToArray()));
+                        partialLineQueue.Clear();
+                        if (Echo)
+                        {
+                            driver.SendNewLine();
+                        }
                         break;
 
                     case TerminalInterrupt.BACK:

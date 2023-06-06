@@ -16,8 +16,8 @@ namespace SimpleShell
     {
         static void Main(string[] args)
         {
-            TestTerminalDriver();
-            //TestTerminal();
+            //TestTerminalDriver();
+            TestTerminal();
             //TestSecuritySystem();
             //TestSessionManager();
         }
