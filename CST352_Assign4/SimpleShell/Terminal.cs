@@ -153,18 +153,28 @@ namespace SimpleShell
                         break;
 
                     case TerminalInterrupt.ENTER:
-                        // get all the characters from the partial line queue and create a completed line
-                        completedLineQueue.Insert(new string (partialLineQueue.ToArray()));
-                        partialLineQueue.Clear();
                         if (Echo)
                         {
                             driver.SendNewLine();
                         }
+                        // get all the characters from the partial line queue and create a completed line
+                        completedLineQueue.Insert(new string (partialLineQueue.ToArray()));
+                        partialLineQueue.Clear();
                         break;
 
                     case TerminalInterrupt.BACK:
                         // throw away the last character entered
-                        // TODO
+                        if(partialLineQueue.Count > 0)
+                        {
+                            partialLineQueue.RemoveAt(partialLineQueue.Count - 1);
+
+                            if (Echo)
+                            {
+                                driver.SendChar('\b');
+                                driver.SendChar(' ');
+                                driver.SendChar('\b');
+                            }
+                        }
                         break;
                 }
             }

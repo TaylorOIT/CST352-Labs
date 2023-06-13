@@ -17,9 +17,9 @@ namespace SimpleShell
         static void Main(string[] args)
         {
             //TestTerminalDriver();
-            TestTerminal();
+            //TestTerminal();
             //TestSecuritySystem();
-            //TestSessionManager();
+            TestSessionManager();
         }
 
         #region terminal driver
@@ -82,10 +82,15 @@ namespace SimpleShell
             Terminal term = new Terminal(driver);
             term.Connect();
 
-            term.Write("Enter some text: ");
-            term.Echo = true;
-            string s1 = term.ReadLine();
-            term.WriteLine("You entered: " + s1);
+            while (true)
+            {
+                term.Write("Enter some text: ");
+                term.Echo = true;
+                string s1 = term.ReadLine();
+                term.WriteLine("You entered: " + s1);
+                if (s1 == "quit")
+                    break;
+            }
 
             term.Disconnect();
         }
@@ -116,8 +121,8 @@ namespace SimpleShell
         static void TestSessionManager()
         {
             // disk
-            //VolatileDisk disk = new VolatileDisk(1);
-            PersistentDisk disk = new PersistentDisk(1, "disk1");
+            VolatileDisk disk = new VolatileDisk(1);
+            //PersistentDisk disk = new PersistentDisk(1, "disk1");
             
             // create and write our OS to disk if needed
             CreateOSOnDisk(disk);
